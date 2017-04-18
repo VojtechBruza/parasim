@@ -23,7 +23,7 @@ import org.sybila.parasim.model.trajectory.*;
 public class SimCoreSimulationEngine implements SimulationEngine {
 
 
-    //TODO Vojta - add getStepLimit()
+    //TODO Vojta - add getStepLimit()? octave limitations or limitations of parasim?
 
     @Override
     public void close() {
@@ -32,25 +32,14 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
     @Override
     public Trajectory simulate(Point point, OdeSystem odeSystem, double timeLimit, PrecisionConfiguration precision) {
-        //start time: point.getTime() ?
-        //end time: timeLimit?
-
         Model model = odeSystem.getOriginalModel();
-
 //        System.out.println("PARAMETER VALUES: " + odeSystem.getAvailableParameters().keySet() +" VARIABLES: " + odeSystem.getVariables().keySet());
 //        // DONE Vojta - how to recognize if the index is same as in my Model (corresponding parameters and variables)
-//
-//        //SETTING VARIABLES
-//        for(Variable variable : odeSystem.getVariables().values()){
-//            System.out.println(variable.getName() + " - VALUE: " + variable.evaluate(point));
-//            System.out.println("INITIAL: " + point.getValue(odeSystem.getInitialVariableValue(variable).getExpression().getIndex()));
-//            if (!variable.isSubstituted()) {
-//                //set species (variables) values in model
-//                model.getSpecies(variable.getName()).setValue(point.getValue(variable.getIndex()));
-//            }
-//        }
+        //SETTING VARIABLES
         //DONE!! SET VARIABLES
         for(Variable variable : odeSystem.getVariables().values()){
+//            System.out.println(variable.getName() + " - VALUE: " + variable.evaluate(point));
+//            System.out.println("INITIAL: " + point.getValue(odeSystem.getInitialVariableValue(variable).getExpression().getIndex()));
             if (!variable.isSubstituted()) {
                 //set species (variables) values in model
                 model.getSpecies(variable.getName()).setValue(point.getValue(variable.getIndex()));
@@ -59,23 +48,22 @@ public class SimCoreSimulationEngine implements SimulationEngine {
             }
         }
 
+        //TODO - pritority - check difference when perturbating over subset of parameters or variables
+//        System.out.println("Parameter count\nModel: " + model.getParameterCount() + "\nOde system: " + odeSystem.getAvailableParameters().size()); //2
+//        System.out.println("Model variable count: " + model.getVariableCount()); //10
+//        System.out.println("Model number of variables: " + model.getNumVariables()); 10
+//        System.out.println("Ode system variable count: " + odeSystem.getVariables().size()); /3
+
 //        //odeSystem.getAvailableParameters() returns only parameters, use odeSystem.getVariables() to get variables
 //        //DONE findOut if parameters are also variables (if it is synonym)
-//
+
 //        //SETTING PARAMETERS
-//        for(Parameter parameter : odeSystem.getAvailableParameters().values()){
-//            if (!parameter.isSubstituted()) {
-//                System.out.println(parameter.getName() + " - VALUE: " + point.getValue(parameter.getIndex()));
-//                //set parameters values in model
-//                model.getParameter(parameter.getName()).setValue(point.getValue(parameter.getIndex()));//what is the difference?? "parameter.evaluate(point)" - doesnt work if parameter is not substituted vs "point.getValue(parameter.getIndex())" - works
-//            }
-//        }
 //        //DONE Vojta - set parameter value in model according to ode system parameter value
 //        //DONE Vojta - create substituted odeSystem (model)
-//
 
         //DONE!! SET PARAMETERS
         for(Parameter parameter : odeSystem.getAvailableParameters().values()){
+//                System.out.println(parameter.getName() + " - VALUE: " + point.getValue(parameter.getIndex()));
             if (!parameter.isSubstituted()) { //substituted are those that are set at the beginning (not perturbating over them)
                 //set parameters values in model
                 model.getParameter(parameter.getName()).setValue(point.getValue(parameter.getIndex()));//what is the difference?? "parameter.evaluate(point)" - doesnt work if parameter is not substituted vs "point.getValue(parameter.getIndex())" - works
@@ -88,7 +76,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //        if (numOfIterations > getStepLimit()) { //TODO max num iterations limit is Integer.MAX_VALUE because I have to change the type to integer
 //            throw new IllegalStateException("Can't simulate the trajectory because the number of iterations <" + numOfIterations + "> is higher than the given limit <" + getStepLimit() + ">.");
 //        }
-        //TIME - need to be float //TODO use only double? ask Safranek
+        //TIME - need to be float //TODO use only double? ask safranek
         float[] timesFloat = new float[(int) numOfIterations];
         float timeFloat = point.getTime();
         for (int j = 0; j < timesFloat.length; j++) {
