@@ -6,7 +6,6 @@ import org.sbml.jsbml.validator.ModelOverdeterminedException;
 import org.simulator.math.odes.*;
 import org.simulator.sbml.SBMLinterpreter;
 import org.sybila.parasim.computation.simulation.api.PrecisionConfiguration;
-import org.sybila.parasim.computation.simulation.api.SimulationException;
 import org.sybila.parasim.computation.simulation.cpu.SimulationEngine;
 import org.sybila.parasim.model.math.Parameter;
 import org.sybila.parasim.model.math.Variable;
