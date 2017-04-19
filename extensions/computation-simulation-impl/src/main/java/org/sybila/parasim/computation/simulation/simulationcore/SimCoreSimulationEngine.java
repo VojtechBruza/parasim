@@ -3,10 +3,7 @@ package org.sybila.parasim.computation.simulation.simulationcore;
 import org.apache.commons.math.ode.DerivativeException;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.validator.ModelOverdeterminedException;
-import org.simulator.math.odes.AbstractDESSolver;
-import org.simulator.math.odes.AdaptiveStepsizeIntegrator;
-import org.simulator.math.odes.MultiTable;
-import org.simulator.math.odes.RosenbrockSolver;
+import org.simulator.math.odes.*;
 import org.simulator.sbml.SBMLinterpreter;
 import org.sybila.parasim.computation.simulation.api.PrecisionConfiguration;
 import org.sybila.parasim.computation.simulation.api.SimulationException;
@@ -113,7 +110,10 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
 //        //DONE Vojta - where to get time array or start time and end time
 
-        AdaptiveStepsizeIntegrator solver = new RosenbrockSolver();
+        AdaptiveStepsizeIntegrator solver = new RosenbrockSolver(); //only +-10x slower than octave on lotkav model
+//        AdaptiveStepsizeIntegrator solver = new AdamsBashforthSolver(); //Slower +-100x than octave on lotkav model
+//        AdaptiveStepsizeIntegrator solver = new AdamsMoultonSolver(); //Slower more than +-100x than octave on lotkav model
+
         MultiTable solution = null;
 
         //DONE!! SET MAX REALTIVE
