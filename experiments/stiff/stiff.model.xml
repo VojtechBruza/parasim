@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="1">
+	<model>
+		<listOfCompartments>
+			<compartment id="uVol" size="1"/>
+		</listOfCompartments>
+		<listOfSpecies>
+			<species id="X" compartment="uVol" initialConcentration="100"/>
+			<species id="Y" compartment="uVol" initialConcentration="10"/>
+			<species id="Z" compartment="uVol" initialConcentration="0"/>
+		</listOfSpecies>
+		<listOfParameters>
+			<parameter id="small" value="0.01"/>
+			<parameter id="large" value="10000"/>
+			<parameter id="largest" value="30000000"/>
+		</listOfParameters>
+		<listOfReactions>
+			<reaction id="xdot" reversible="false">
+				<listOfReactants>
+					<speciesReference species="Y"/>
+					<speciesReference species="Z"/>
+				</listOfReactants>
+				<listOfProducts>
+					<speciesReference species="X"/>
+				</listOfProducts>
+				<kineticLaw>
+					<math xmlns="http://www.w3.org/1998/Math/MathML">
+						<apply>
+							<minus/>
+							<apply>
+								<times/>
+								<ci> small </ci>
+								<ci> X </ci>
+							</apply>
+							<apply>
+								<times/>
+								<ci> large </ci>
+								<ci> Y </ci>
+								<ci> Z </ci>
+							</apply>
+						</apply>
+					</math>
+				</kineticLaw>
+			</reaction>
+			<reaction id="ydot" reversible="false">
+				<listOfReactants>
+					<speciesReference species="X"/>
+					<speciesReference species="Y"/>
+					<speciesReference species="Z"/>
+				</listOfReactants>
+				<listOfProducts>
+					<speciesReference species="Y"/>
+				</listOfProducts>
+				<kineticLaw>
+					<math xmlns="http://www.w3.org/1998/Math/MathML">
+						<apply>
+							<plus/>
+							<apply>
+								<times/>
+								<ci> small </ci>
+								<ci> X </ci>
+							</apply>
+							<apply>
+								<times/>
+								<ci> large </ci>
+								<ci> Y </ci>
+								<ci> Z </ci>
+							</apply>
+							<apply>
+								<times/>
+								<ci> largest </ci>
+								<ci> Y </ci>
+								<ci> Y </ci>
+							</apply>
+						</apply>
+					</math>
+				</kineticLaw>
+			</reaction>
+			<reaction id="zdot" reversible="false">
+				<listOfReactants>
+					<speciesReference species="Y"/>
+				</listOfReactants>
+				<listOfProducts>
+					<speciesReference species="Z"/>
+				</listOfProducts>
+				<kineticLaw>
+					<math xmlns="http://www.w3.org/1998/Math/MathML">
+						<apply>
+							<times/>
+							<ci> largest </ci>
+							<ci> Y </ci>
+							<ci> Y </ci>
+						</apply>
+					</math>
+				</kineticLaw>
+			</reaction>
+		</listOfReactions>
+	</model>
+</sbml>
