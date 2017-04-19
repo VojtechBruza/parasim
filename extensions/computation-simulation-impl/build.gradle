@@ -7,4 +7,5 @@ dependencies {
 
 	//Simulation Core dependency - must be in resources folder, otherwise exception
 	compile files('libs/odeSolvers/SimulationCoreLibrary_v1.4_incl-libs-nolog4j.jar')
+	compile files('libs/odeSolvers/libsbmlsimj.jar')
 }
