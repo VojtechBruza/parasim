@@ -32,7 +32,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
     @Override
     public Trajectory simulate(Point point, OdeSystem odeSystem, double timeLimit, PrecisionConfiguration precision) {
-        long settingStartTime = System.nanoTime();
+        long basicSettingStartTime = System.nanoTime();
         //todo create own Model instance instead of modifying the current one
         Model model = odeSystem.getOriginalModel(); //todo return copy of original model? not modify the previous one?
 //        System.out.println("PARAMETER VALUES: " + odeSystem.getAvailableParameters().keySet() +" VARIABLES: " + odeSystem.getVariables().keySet());
@@ -79,7 +79,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //            throw new IllegalStateException("Can't simulate the trajectory because the number of iterations <" + numOfIterations + "> is higher than the given limit <" + getStepLimit() + ">.");
 //        }
 
-        long settingTime = System.nanoTime() - settingStartTime;
+        long basicSettingTime = System.nanoTime() - basicSettingStartTime;
 
         long timeStartTime = System.nanoTime();
         //TIME - need to be float //TODO use only double? ask safranek
@@ -95,7 +95,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
         //DONE!! SIMULATION
         //SIMULATION
-        long simulationStartTime = System.nanoTime();
+        long simulationSettingStartTime = System.nanoTime();
         SBMLinterpreter interpreter = null;
         try {
             interpreter = new SBMLinterpreter(model);
@@ -127,18 +127,18 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //        }
 //        solver.setAbsTol(maxAbsoluteError); //TODO correct dimension setting???
         double[] intialValues = interpreter.getInitialValues();
+        long simulationSettingTime = (System.nanoTime() - simulationSettingStartTime);
+        long simulationStartTime = System.nanoTime();
         try {
             solution = solver.solve(interpreter, intialValues, times);
         } catch (DerivativeException e) {
             e.printStackTrace();
             return null; //good?
         }
+        long simulationTime = System.nanoTime() - simulationStartTime;
 //        if (solution == null) {
 ////            //TODO throw exception?
 //        }
-
-        long simulationTime = System.nanoTime() - simulationStartTime;
-
         //DONE!! DATA FROM MULTITABLE TO FLOAT ARRAY
 //        //PARSING DATA TO TRAJECTORY
         //help printing
@@ -181,10 +181,11 @@ public class SimCoreSimulationEngine implements SimulationEngine {
         //DONE!! OUTPUT TRAJECTORY
         //DONE Vojta - how to create new trajectory from multitable - correct data parsing
         System.out.println("TIME");
-        System.out.println("Setting time: " + settingTime);
-        System.out.println("Simulation time: " + simulationTime);
-        System.out.println("Time time: " + timeTime);
-        System.out.println("Parsing time: " + parsingTime);
+        System.out.printf("Setting time: %.9f ms\n", (simulationSettingTime + basicSettingTime) / 1000000000.0);
+        System.out.printf("Simulation time: %.9f ms\n", simulationTime / 1000000000.0);
+        System.out.printf("Time time: %.9f ms\n", timeTime / 1000000000.0);
+        System.out.printf("Parsing time: %.9f ms\n", parsingTime / 1000000000.0);
+
 
         if (odeSystem.getAvailableParameters().isEmpty()) {
             return new ArrayTrajectory(simulatedData, timesFloat, point.getDimension()); //TODO howcome this line never runs?
