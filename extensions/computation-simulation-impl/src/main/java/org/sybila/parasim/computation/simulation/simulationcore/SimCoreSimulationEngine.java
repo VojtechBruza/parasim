@@ -32,7 +32,8 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
     @Override
     public Trajectory simulate(Point point, OdeSystem odeSystem, double timeLimit, PrecisionConfiguration precision) {
-        Model model = odeSystem.getOriginalModel();
+        //todo create own Model instance instead of modifying the current one
+        Model model = odeSystem.getOriginalModel(); //todo return copy of original model? not modify the previous one?
 //        System.out.println("PARAMETER VALUES: " + odeSystem.getAvailableParameters().keySet() +" VARIABLES: " + odeSystem.getVariables().keySet());
 //        // DONE Vojta - how to recognize if the index is same as in my Model (corresponding parameters and variables)
         //SETTING VARIABLES
@@ -40,9 +41,10 @@ public class SimCoreSimulationEngine implements SimulationEngine {
         for(Variable variable : odeSystem.getVariables().values()){
 //            System.out.println(variable.getName() + " - VALUE: " + variable.evaluate(point));
 //            System.out.println("INITIAL: " + point.getValue(odeSystem.getInitialVariableValue(variable).getExpression().getIndex()));
-            if (!variable.isSubstituted()) {
+            if (!variable.isSubstituted()) { //TODO redundant condition? variable is never substituted
                 //set species (variables) values in model
-                model.getSpecies(variable.getName()).setValue(point.getValue(variable.getIndex()));
+                double currentValue = point.getValue(variable.getIndex());
+                model.getSpecies(variable.getName()).setValue(currentValue);
                 //TODO throw exceptions if no variables with this name are found?
                 //TODO Vojta - how does initial conditions setting work (or perturbating over variables not parameters) ->need to debug on linux? //I think it works like expected (get set values from the current point)
             }
@@ -77,17 +79,13 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //            throw new IllegalStateException("Can't simulate the trajectory because the number of iterations <" + numOfIterations + "> is higher than the given limit <" + getStepLimit() + ">.");
 //        }
         //TIME - need to be float //TODO use only double? ask safranek
-        float[] timesFloat = new float[(int) numOfIterations];
-        float timeFloat = point.getTime();
-        for (int j = 0; j < timesFloat.length; j++) {
-            timeFloat += precision.getTimeStep();
-            timesFloat[j] = timeFloat;
-        } //TODO remove redundant code (twice creating time array)
         double[] times = new double[(int) numOfIterations];
-        double time = point.getTime();
+        float[] timesFloat = new float[(int) numOfIterations]; //TODO make time computation static to improve performance (check if other things can be static)
+        float time = point.getTime(); //TODO use primary double or float?
         for (int j = 0; j < times.length; j++) {
             time += precision.getTimeStep();
-            times[j] = time;
+            times[j] = (double) time;
+            timesFloat[j] = time;
         }
 
         //DONE!! SIMULATION
@@ -97,6 +95,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
             interpreter = new SBMLinterpreter(model);
         } catch (ModelOverdeterminedException e) {
             e.printStackTrace();
+            return null; //good?
         }
         if(interpreter == null){
             //TODO throw exception
@@ -121,10 +120,12 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //            }
 //        }
 //        solver.setAbsTol(maxAbsoluteError); //TODO correct dimension setting???
+        double[] intialValues = interpreter.getInitialValues();
         try {
-            solution = solver.solve(interpreter, interpreter.getInitialValues(), times);
+            solution = solver.solve(interpreter, intialValues, times);
         } catch (DerivativeException e) {
             e.printStackTrace();
+            return null; //good?
         }
 //        if (solution == null) {
 ////            //TODO throw exception?
@@ -154,6 +155,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
             numberOfSteps = solution.getRowCount();
         } catch (NullPointerException e) {
             e.printStackTrace(); //if solver failed and solution is null
+            return null; //good? throw exception instead?
         }
         float[] simulatedData = new float[numberOfSteps*odeSystem.getVariables().size()];
         for (int currentVariable = 0; currentVariable < odeSystem.getVariables().size(); currentVariable++) { //simulating only variables, not parameters
@@ -169,7 +171,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
         //DONE!! OUTPUT TRAJECTORY
         //DONE Vojta - how to create new trajectory from multitable - correct data parsing
         if (odeSystem.getAvailableParameters().isEmpty()) {
-            return new ArrayTrajectory(simulatedData, timesFloat, point.getDimension());
+            return new ArrayTrajectory(simulatedData, timesFloat, point.getDimension()); //TODO howcome this line never runs?
         } else {
             return new ArrayTrajectory(point, simulatedData, timesFloat, odeSystem.getVariables().size());
         }
