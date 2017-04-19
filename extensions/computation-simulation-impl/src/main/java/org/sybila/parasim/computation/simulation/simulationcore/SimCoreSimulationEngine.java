@@ -32,13 +32,14 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
     @Override
     public Trajectory simulate(Point point, OdeSystem odeSystem, double timeLimit, PrecisionConfiguration precision) {
+        long settingStartTime = System.nanoTime();
         //todo create own Model instance instead of modifying the current one
         Model model = odeSystem.getOriginalModel(); //todo return copy of original model? not modify the previous one?
 //        System.out.println("PARAMETER VALUES: " + odeSystem.getAvailableParameters().keySet() +" VARIABLES: " + odeSystem.getVariables().keySet());
 //        // DONE Vojta - how to recognize if the index is same as in my Model (corresponding parameters and variables)
         //SETTING VARIABLES
         //DONE!! SET VARIABLES
-        for(Variable variable : odeSystem.getVariables().values()){
+        for(Variable variable : odeSystem.getVariables().values()) {
 //            System.out.println(variable.getName() + " - VALUE: " + variable.evaluate(point));
 //            System.out.println("INITIAL: " + point.getValue(odeSystem.getInitialVariableValue(variable).getExpression().getIndex()));
             if (!variable.isSubstituted()) { //TODO redundant condition? variable is never substituted
@@ -49,7 +50,6 @@ public class SimCoreSimulationEngine implements SimulationEngine {
                 //TODO Vojta - how does initial conditions setting work (or perturbating over variables not parameters) ->need to debug on linux? //I think it works like expected (get set values from the current point)
             }
         }
-
         //TODO - pritority - check difference when perturbating over subset of parameters or variables
 //        System.out.println("Parameter count\nModel: " + model.getParameterCount() + "\nOde system: " + odeSystem.getAvailableParameters().size()); //2
 //        System.out.println("Model variable count: " + model.getVariableCount()); //10
@@ -78,6 +78,10 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //        if (numOfIterations > getStepLimit()) { //TODO max num iterations limit is Integer.MAX_VALUE because I have to change the type to integer
 //            throw new IllegalStateException("Can't simulate the trajectory because the number of iterations <" + numOfIterations + "> is higher than the given limit <" + getStepLimit() + ">.");
 //        }
+
+        long settingTime = System.nanoTime() - settingStartTime;
+
+        long timeStartTime = System.nanoTime();
         //TIME - need to be float //TODO use only double? ask safranek
         double[] times = new double[(int) numOfIterations];
         float[] timesFloat = new float[(int) numOfIterations]; //TODO make time computation static to improve performance (check if other things can be static)
@@ -87,9 +91,11 @@ public class SimCoreSimulationEngine implements SimulationEngine {
             times[j] = (double) time;
             timesFloat[j] = time;
         }
+        long timeTime = System.nanoTime() - timeStartTime;
 
         //DONE!! SIMULATION
         //SIMULATION
+        long simulationStartTime = System.nanoTime();
         SBMLinterpreter interpreter = null;
         try {
             interpreter = new SBMLinterpreter(model);
@@ -131,6 +137,8 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 ////            //TODO throw exception?
 //        }
 
+        long simulationTime = System.nanoTime() - simulationStartTime;
+
         //DONE!! DATA FROM MULTITABLE TO FLOAT ARRAY
 //        //PARSING DATA TO TRAJECTORY
         //help printing
@@ -150,6 +158,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 //        System.out.println("Start time: " + point.getTime() + " End Time: " + timeLimit);
 //        System.out.println("Number of iterations: " + numOfIterations);
 
+        long parsingStartTime = System.nanoTime();
         int numberOfSteps = 0;
         try{
             numberOfSteps = solution.getRowCount();
@@ -166,10 +175,17 @@ public class SimCoreSimulationEngine implements SimulationEngine {
             }
         }
 
+       long parsingTime = System.nanoTime() - parsingStartTime;
 
         //TODO - top priority - verification of sizes of arrays, dimensions and so
         //DONE!! OUTPUT TRAJECTORY
         //DONE Vojta - how to create new trajectory from multitable - correct data parsing
+        System.out.println("TIME");
+        System.out.println("Setting time: " + settingTime);
+        System.out.println("Simulation time: " + simulationTime);
+        System.out.println("Time time: " + timeTime);
+        System.out.println("Parsing time: " + parsingTime);
+
         if (odeSystem.getAvailableParameters().isEmpty()) {
             return new ArrayTrajectory(simulatedData, timesFloat, point.getDimension()); //TODO howcome this line never runs?
         } else {
