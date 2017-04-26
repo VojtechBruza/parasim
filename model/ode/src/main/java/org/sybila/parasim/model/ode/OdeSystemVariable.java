@@ -23,12 +23,21 @@ import org.sybila.parasim.model.math.Expression;
 import org.sybila.parasim.model.math.Variable;
 
 /**
+ * Class representing one variable in ODE system with its "right side expression" (ODE)
+ *
  * @author <a href="mailto:xpapous1@fi.muni.cz">Jan Papousek</a>
  */
 public class OdeSystemVariable extends Variable {
 
     private final Expression rightSideExpression;
 
+    /**
+     * Constructs new variable in ODE system
+     * Allows to set right side expression to variable
+     * @param name model name of the variable
+     * @param index
+     * @param rightSideExpression represents function for computation of variable value in given ODE system
+     */
     public OdeSystemVariable(String name, int index, Expression rightSideExpression) {
         super(name, index);
         if (rightSideExpression == null) {
@@ -37,10 +46,20 @@ public class OdeSystemVariable extends Variable {
         this.rightSideExpression = rightSideExpression;
     }
 
+    /**
+     * Constructs variable in ODE system from previous variable
+     * Allows to set right side expression to variable
+     * @param variable original variable
+     * @param rightSideExpression represents function for computation of variable value in given ODE system
+     */
     public OdeSystemVariable(Variable variable, Expression rightSideExpression) {
         this(variable.getName(), variable.getIndex(), rightSideExpression);
     }
 
+    /**
+     *
+     * @return rightSideExpression representing the Ordinary Differential Equation
+     */
     public final Expression getRightSideExpression() {
         return rightSideExpression;
     }

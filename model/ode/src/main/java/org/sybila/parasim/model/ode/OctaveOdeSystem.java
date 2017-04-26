@@ -39,6 +39,9 @@ public class OctaveOdeSystem implements OdeSystem {
     private final OdeSystem odeSystem;
     private String octaveString;
 
+    /**
+     * Default variable rendering format for octave string builder: "x(n)" (n from {1,...,number of variables})
+     */
     private static final VariableRenderer VARIABLE_RENDERER = new VariableRenderer() {
 
         @Override

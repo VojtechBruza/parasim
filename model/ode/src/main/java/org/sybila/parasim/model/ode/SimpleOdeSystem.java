@@ -182,6 +182,10 @@ public class SimpleOdeSystem implements OdeSystem {
         return new SimpleOdeSystem(newVars, initialVariableValues.values(), this.parameterValues.values(), originalModel);
     }
 
+    /**
+     * To be able to iterate over all variables of ODE system
+     * @return iterator over all variables
+     */
     @Override
     public Iterator<OdeSystemVariable> iterator() {
         return variables.values().iterator();
