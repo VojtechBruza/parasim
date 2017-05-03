@@ -22,7 +22,6 @@ package org.sybila.parasim.model.ode;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
-
 import org.sbml.jsbml.Model;
 import org.sybila.parasim.model.math.Expression;
 import org.sybila.parasim.model.math.Parameter;

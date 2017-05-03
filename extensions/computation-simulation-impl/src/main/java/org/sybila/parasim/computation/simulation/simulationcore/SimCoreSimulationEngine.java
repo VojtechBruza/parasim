@@ -115,7 +115,7 @@ public class SimCoreSimulationEngine implements SimulationEngine {
 
         MultiTable solution = null;
 
-        //DONE!! SET MAX REALTIVE
+        //DONE!! SET MAX RELATIVE
         solver.setRelTol(precision.getMaxRelativeError());
         //TODO SET MAX ABSOLUTE ERROR
 //        float maxAbsoluteError = precision.getMaxAbsoluteError(0);
