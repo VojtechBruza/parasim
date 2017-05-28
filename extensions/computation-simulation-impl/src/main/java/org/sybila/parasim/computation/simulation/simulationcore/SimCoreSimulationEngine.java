@@ -66,6 +66,9 @@ public class SimCoreSimulationEngine implements SimulationEngine {
     @Override
     public Trajectory simulate(Point point, OdeSystem odeSystem, double timeLimit, PrecisionConfiguration precision) {
         Model model = odeSystem.getOriginalModel();
+        if(model == null){
+            throw new IllegalStateException("Can't simulate the trajectory due to missing SBML model.");
+        }
 //        //SETTING VARIABLES
         for(Variable variable : odeSystem.getVariables().values()){
             if (!variable.isSubstituted()) {
